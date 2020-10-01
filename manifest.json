@@ -1,0 +1,7 @@
+{
+  "name": "Send Button",
+  "description": "Adds a send button to the text area to send messages.",
+  "author": "lav#5778",
+  "version": "0.0.1",
+  "license": "MIT"
+}
