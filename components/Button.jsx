@@ -3,6 +3,7 @@ const {
     getModuleByDisplayName,
     getModule,
 } = require("powercord/webpack");
+
 const Tooltip = getModuleByDisplayName("Tooltip", false);
 const { Button } = require("powercord/components");
 const buttonClasses = getModule(["button"], false);
@@ -21,11 +22,18 @@ module.exports = () => (
                 <div
                     className={`${buttonClasses.contents} ${buttonWrapperClasses.button} ${buttonTextAreaClasses.button}`}
                 >
-                    <img
-                        className={`${buttonWrapperClasses.icon}`}
-                        style={{ filter: "invert(70%)" }}
-                        src="https://www.flaticon.com/premium-icon/icons/svg/3024/3024593.svg"
-                     alt="Send message"/>
+                    <svg
+                        aria-hidden={false}
+                        width='24'
+                        height='24'
+                        viewBox='0 0 24 24'
+                        className={
+                            buttonWrapperClasses.icon
+                        }
+                    >
+                        <path fill='currentColor' d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/>
+                        <path d='M0 0h24v24H0z' fill='none'/>
+                    </svg>
                 </div>
             </Button>
         )}
