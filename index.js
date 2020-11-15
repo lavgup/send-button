@@ -1,7 +1,8 @@
 const { Plugin } = require('powercord/entities');
 const { findInReactTree } = require('powercord/util');
 const { inject, uninject } = require('powercord/injector');
-const { getModule, React } = require('powercord/webpack');
+const { getModule, React, constants: { Permissions: { SEND_MESSAGES } } } = require('powercord/webpack');
+
 const Settings = require('./Settings');
 
 const press = new KeyboardEvent("keydown", { key: 'Enter', code: 'Enter', which: 13, keyCode: 13, bubbles: true });
@@ -10,8 +11,14 @@ Object.defineProperties(press, { keyCode: { value: 13 }, which: { value: 13 } })
 const Button = require('./components/Button');
 
 class SendButtonPlugin extends Plugin {
-    startPlugin() {
+    async startPlugin() {
         this.registerSettings();
+
+        await this.import([ 'getLastSelectedChannelId' ], 'getChannelId');
+        await this.import('getChannel');
+        await this.import('getCurrentUser');
+        await this.import(['can', 'canEveryone'], 'can');
+
         this.addButton();
     }
 
@@ -32,34 +39,39 @@ class SendButtonPlugin extends Plugin {
             false
         );
 
-        inject(
-            "send-button",
-            ChannelTextAreaContainer.type,
-            "render",
-            (args, res) => {
-                const props = findInReactTree(
-                    res,
-                    r => r && r.className && r.className.indexOf("buttons-") === 0
-                );
+        inject("send-button", ChannelTextAreaContainer.type, "render", (args, res) => {
+            if(!this.can(SEND_MESSAGES, this.getCurrentUser(), this.getChannel(this.getChannelId()))) return res;
 
-                const element = React.createElement(
-                    "div",
-                    {
-                        className: ".send-button",
-                        onClick: () => this.onClick(),
-                    },
-                    React.createElement(Button)
-                );
+            const props = findInReactTree(
+                res,
+                r => r && r.className && r.className.indexOf("buttons-") === 0
+            );
 
-                const buttonAtStart = this.settings.get('buttonAtStart', false);
+            const element = React.createElement(
+                "div",
+                {
+                    className: ".send-button",
+                    onClick: () => this.onClick(),
+                },
+                React.createElement(Button)
+            );
 
-                buttonAtStart ? props.children.unshift(element) : props.children.push(element);
+            const buttonAtStart = this.settings.get('buttonAtStart', false);
 
-                return res;
-            }
-        );
+            buttonAtStart ? props.children.unshift(element) : props.children.push(element);
+
+            return res;
+        });
 
         ChannelTextAreaContainer.type.render.displayName = "ChannelTextAreaContainer";
+    }
+
+    async import(filter, functionName = filter) {
+        if (typeof filter === 'string') {
+            filter = [filter];
+        }
+
+        this[functionName] = (await getModule(filter))[functionName];
     }
 
     async onClick() {
