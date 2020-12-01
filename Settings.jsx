@@ -1,4 +1,4 @@
-const { React } = require('powercord/webpack');
+const { React, i18n: { Messages } } = require('powercord/webpack');
 const { SwitchItem } = require('powercord/components/settings');
 
 class Settings extends React.Component {
@@ -7,11 +7,11 @@ class Settings extends React.Component {
 
         return (
             <SwitchItem
-                note="Whether the button should be at the start of the list of buttons"
+                note={Messages.BUTTON_AT_START}
                 value={getSetting("buttonAtStart", false)}
                 onChange={() => toggleSetting("buttonAtStart")}
             >
-                Button at start of list
+                {Messages.BUTTON_AT_START_LIST}
             </SwitchItem>
         )
     }
