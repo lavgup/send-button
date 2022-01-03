@@ -27,8 +27,8 @@ class SendButtonPlugin extends Plugin {
         powercord.api.i18n.loadAllStrings(i18n);
         this.registerSettings();
 
-        await this.import([ 'getLastSelectedChannelId' ], 'getChannelId');
-        await this.import('getChannel');
+        await this.import(['getLastSelectedChannelId'], 'getChannelId');
+        await this.import(['getChannel', 'hasChannel'], 'getChannel');
         await this.import('getCurrentUser');
         await this.import(['can', 'canEveryone'], 'can');
 
@@ -53,7 +53,7 @@ class SendButtonPlugin extends Plugin {
         );
 
         inject('send-button', ChannelTextAreaContainer.type, 'render', (args, res) => {
-            if(!this.can(SEND_MESSAGES, this.getCurrentUser(), this.getChannel(this.getChannelId()))) return res;
+            if (!this.can(SEND_MESSAGES, this.getCurrentUser(), this.getChannel(this.getChannelId()))) return res;
 
             const props = findInReactTree(
                 res,
@@ -101,8 +101,7 @@ class SendButtonPlugin extends Plugin {
         uninject('send-button');
         powercord.api.settings.unregisterSettings('send-button-settings')
 
-        const button = document.querySelector('.send-button');
-        if (button) button.remove();
+        document.querySelector('.send-button')?.remove();
     }
 }
 
